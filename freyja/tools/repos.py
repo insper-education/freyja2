@@ -3,13 +3,16 @@ import subprocess
 import yaml
 import os
 
+
 @click.group()
 def repos():
     pass
 
+
 def report(log):
     for r, s in log.items():
         print("{}: {}".format(r.split(sep='/')[-1], s))
+
 
 def clone_repo(repo, dir):
    status = True
@@ -20,6 +23,7 @@ def clone_repo(repo, dir):
    except:
        status = False
    return status
+
 
 @click.option(
     "--dir",
@@ -38,6 +42,7 @@ def clone(freyja, dir):
     for repo in freyja.repos:
         log[repo] = clone_repo(repo, dir)
         report(log)
+
 
 @click.option(
     "--dir",

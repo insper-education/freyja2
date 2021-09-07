@@ -3,12 +3,14 @@ import os
 import yaml
 from .tools.list import list
 from .tools.repos import repos
+from .tools.issues import issues
 
 class Freyja:
     def __init__(self, repos_yml):
         self.repos_yml = repos_yml
         self.repos = []
         self.org = ''
+        self.https = False
         self.prefix = ''
         self.verbose = False
 
@@ -24,7 +26,7 @@ class Freyja:
             config = yaml.load(file, Loader=yaml.FullLoader)
 
             if 'org' not in config:
-                click.echo('Please generate a repo config file with a org key.')
+                click.echo('To use the full power of this script generate a repo config file with a org key.')
                 return False
             else:
                 self.org = config['org']
@@ -46,6 +48,7 @@ class Freyja:
                 return False
         return True
 
+
     def write_config(self):
         config = {'org': self.org, 'prefix': self.prefix, 'repos': self.repos}
         with open(self.repos_yml, 'w+') as f:
@@ -61,7 +64,7 @@ pass_config = click.make_pass_decorator(Freyja)
 
 @click.group()
 @click.option(
-    "--repos_yml",
+    '-r', "--repos_yml",
     default="repos.yml",
     help="Set the repository list file.",
 )
@@ -73,3 +76,4 @@ def cli(ctx, repos_yml, verbose):
 
 cli.add_command(list)
 cli.add_command(repos)
+cli.add_command(issues)

@@ -24,20 +24,14 @@ def get_repos(org_name, prefix, size=500):
 
 def append_url(repos, https):
     if https is False:
-        base_url = 'git@github:'
+        base_url = 'git@github.com:'
     else:
         base_url = 'https://'
     return([base_url + repo for repo in repos])
 
 
-@click.option(
-    "--https",
-    default=False,
-    help="Create the list with https:// instead ssh://"
-)
 @click.group()
-def list(https):
-    https = https
+def list():
     pass
 
 
@@ -61,8 +55,8 @@ def create(freyja, org_name, prefix, https):
 
     freyja.org = org_name
     freyja.prefix = prefix
-    freyja.repos = get_repos(org_name, prefix)
-    freyja.repos = append_url(freyja.repos, https)
+    freyja.repos_name = get_repos(org_name, prefix)
+    freyja.repos_url = append_url(freyja.repos, https)
     freyja.write_config()
 
 
@@ -72,19 +66,20 @@ def update(freyja):
     if freyja.open_repos_file() is False:
         return false
 
-    c_repos = get_repos(freyja.org, freyja.prefix)
-    c_repos = append_url(c_repos, False)
+    c_repos_name = get_repos(freyja.org, freyja.prefix)
+    c_repos_url = append_url(c_repos_name, False)
     cnt = 0
-    for r in c_repos:
-        if r not in freyja.repos:
+    for r in c_repos_name:
+        if r not in freyja.repos_url:
             cnt = cnt + 1
-            freyja.repos.append(r)
+            freyja.repos_url.append(r)
     click.echo("{} updated with {} repos".format(freyja.repos_yml, cnt))
     freyja.write_config()
 
+
 @list.command()
 @click.pass_obj
-def show(freyja):
+def print(freyja):
     if freyja.open_repos_file():
-        for e in freyja.repos_list:
-            click.echo('https://github/' + e)
+        for e in freyja.repos:
+            click.echo(e)

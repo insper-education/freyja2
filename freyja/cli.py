@@ -8,7 +8,8 @@ from .tools.issues import issues
 class Freyja:
     def __init__(self, repos_yml):
         self.repos_yml = repos_yml
-        self.repos = []
+        self.repos_url = []
+        self.repos_name = []
         self.org = ''
         self.https = False
         self.prefix = ''
@@ -44,9 +45,14 @@ class Freyja:
                 self.repos = config['repos']
 
             if config['repos'] is None:
-                self.repos = []
+                self.repos_url = []
+                self.repos_name = self.get_repos_name()
                 return False
         return True
+
+
+    def get_repos_name(self):
+        return[repo.split('/')[-1] for repo in self.repos_url]
 
 
     def write_config(self):

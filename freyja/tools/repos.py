@@ -24,6 +24,12 @@ def clone_repo(repo, dir):
    return status
 
 
+def get_default_branch(repo):
+    command = 'git -C {} remote show origin | sed -n \'/HEAD branch/s/.*: //p\''.format(repo)
+    branch = subprocess.check_output(command, shell=True).decode('utf-8')
+    return(branch)
+
+
 @click.option(
     "--dir",
     default='repos',
@@ -35,22 +41,19 @@ def clone(freyja, dir):
     if freyja.open_repos_file() is False:
         return -1
 
-    if len(os.listdir(dir)) > 0:
-        click.echo('Repos dir folder already exist, please use freyja repos update')
-        click.confirm('Do you want to run the update?')
-        update(dir, 'main')
+    if os.path.isdir(dir):
+        if len(os.listdir(dir)) > 0:
+            click.echo('Repos dir folder already exist, please use freyja repos update')
+            click.confirm('Do you want to run the update?')
+            update(dir, 'main')
 
     log = {}
     repoFail = []
-
-    for repo in freyja.repos:
+    for repo in freyja.repos_url:
         log[repo] = clone_repo(repo, dir)
+
     report(log)
 
-def get_default_branch(repo):
-    command = 'git -C {} remote show origin | sed -n \'/HEAD branch/s/.*: //p\''.format(repo)
-    branch = subprocess.check_output(command, shell=True).decode('utf-8')
-    return(branch)
 
 @click.option(
     "--dir",

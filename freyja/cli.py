@@ -42,7 +42,7 @@ class Freyja:
                 click.echo('Please generate a repo config file with a repos key.')
                 return False
             else:
-                self.repos = config['repos']
+                self.repos_url = config['repos']
 
             if config['repos'] is None:
                 self.repos_url = []
@@ -56,17 +56,19 @@ class Freyja:
 
 
     def write_config(self):
-        config = {'org': self.org, 'prefix': self.prefix, 'repos': self.repos}
+        config = {'org': self.org, 'prefix': self.prefix, 'repos': self.repos_url}
         with open(self.repos_yml, 'w+') as f:
             y = yaml.dump(config, default_flow_style=False, indent=None)
             f.write(y)
-        click.echo('{} config file created/updated with a total of {} repos'.format(self.repos_yml, len(self.repos)))
+            click.echo('{} config file created/updated with a total of {} repos'.format(self.repos_yml, len(self.repos_url)))
 
 
     def __repr__(self):
         return f"<Freyja {self.home}>"
 
+
 pass_config = click.make_pass_decorator(Freyja)
+
 
 @click.group()
 @click.option(

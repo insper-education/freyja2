@@ -56,7 +56,7 @@ def create(freyja, org_name, prefix, https):
     freyja.org = org_name
     freyja.prefix = prefix
     freyja.repos_name = get_repos(org_name, prefix)
-    freyja.repos_url = append_url(freyja.repos, https)
+    freyja.repos_url = append_url(freyja.repos_name, https)
     freyja.write_config()
 
 

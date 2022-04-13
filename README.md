@@ -1,6 +1,11 @@
 # freyja2
 
-install
+## instal gh cli
+
+1. Install from https://github.com/cli/cli
+2. after install you should authenticate: `gh auth login`
+
+## install freyja
 
 ```
 git clone https://github.com/insper-education/freyja2/

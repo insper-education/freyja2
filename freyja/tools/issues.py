@@ -36,8 +36,8 @@ class gh_issues():
         return False
 
     def creeate(self, issue, repo):
-        title = '\'{}\''.format(issue['Title'])
-        body = '\'{}\''.format(issue['Body'])
+        title = f"{issue['Title']}"
+        body = f"{issue['Body']}"
         process = subprocess.Popen(['gh', 'issue', 'create', '-t', title, '-b', body, '-R', repo],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)

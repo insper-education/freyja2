@@ -1,32 +1,23 @@
+# -*- coding: utf-8 -*-
 import click
 import subprocess
 import yaml
 
 
-def get(orgName, listLimit):
-    command = 'gh repo list {} --limit {}'.format(orgName, listLimit)
-    raw = subprocess.check_output(command, shell=True).decode('utf-8')
-    return(raw.splitlines())
-
-
-def search(rawList, prefix):
-    l = []
-    for url in rawList:
-        if url.find(prefix) > 0:
-            l.append(url.split()[0])
-    return(l)
-
-
-def get_repos(org_name, prefix, size=500):
-    rawList = get(org_name, size)
-    return(search(rawList, prefix))
-
+def get_repos(org_name, prefix):
+    gh_command = f"gh search repos --owner={org_name} --match=name {prefix}"
+    raw = subprocess.check_output(gh_command, shell=True).decode('utf-8')
+    results = raw.splitlines()
+    repos = []
+    for r in results:
+        repos.append(r.split()[0])
+    return repos
 
 def append_url(repos, ssh):
     if ssh is True:
         base_url = 'git@github.com:'
     else:
-        base_url = 'https://'
+        base_url = 'https://github.com/'
     return([base_url + repo for repo in repos])
 
 
@@ -42,8 +33,7 @@ def list():
     help="Gh organization name to search"
 )
 @click.option(
-    "--ssh",
-    default=False,
+    "--ssh", default=False, is_flag=True,
     help="Create the list with ssh:// instead https://"
 )
 @list.command()
@@ -56,9 +46,11 @@ def create(freyja, org_name, prefix, ssh):
     freyja.org = org_name
     freyja.prefix = prefix
     freyja.repos_name = get_repos(org_name, prefix)
-    freyja.repos_url = append_url(freyja.repos_name, ssh)
-    freyja.write_config()
-
+    if len(freyja.repos_name) > 0:
+        freyja.repos_url = append_url(freyja.repos_name, ssh)
+        freyja.write_config()
+    else:
+        click.echo('No repos found! Consider to check the org name or search direct on the github website to verify informations')
 
 @list.command()
 @click.pass_obj

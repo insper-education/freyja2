@@ -3,7 +3,6 @@ import subprocess
 import yaml
 import os
 
-
 @click.group()
 def repos():
     pass
@@ -12,7 +11,6 @@ def repos():
 def report(log):
     for r, s in log.items():
         print("{}: {}".format(r.split(sep='/')[-1], s))
-
 
 def clone_repo(repo, dir):
    status = True
@@ -23,11 +21,16 @@ def clone_repo(repo, dir):
        status = False
    return status
 
-
 def get_default_branch(repo):
     command = 'git -C {} remote show origin | sed -n \'/HEAD branch/s/.*: //p\''.format(repo)
     branch = subprocess.check_output(command, shell=True).decode('utf-8')
     return(branch)
+
+def interact_repos_list(dir):
+    repos_dir = os.listdir(dir)
+    for repo in repos_dir:
+        repo_dir = os.path.join(dir, repo)
+        yield repo_dir
 
 
 @click.option(
@@ -83,16 +86,14 @@ def update(freyja, dir, branch):
 
     if len(repos_new) > 0:
         click.echo("Repo list has been updated and there is a new repository in the list")
-        click.echo("this script only checks for new repositories in the list")
         click.echo(repos_new)
         click.confirm('Do you want to clone this repositories?')
         for repo in repos_new:
             clone_repo(repo, dir)
 
-    for repo in repos_dir:
+    for repo_dir in interact_repos_list(dir):
         status = True
         out = ''
-        repo_dir = os.path.join(dir, repo)
         try:
             if branch == 'auto':
                 branch_c = get_default_branch(repo_dir)
@@ -104,8 +105,56 @@ def update(freyja, dir, branch):
             status = False
 
         if status is False:
-            print("{}: {}".format(repo, out))
+            print("{}: {}".format(repo_dir, out))
 
-        log[repo] = status
+        log[repo_dir] = status
 
+    report(log)
+
+
+@click.option(
+    "--dir",
+    default='repos',
+    help="Directory to clone the repositories"
+)
+@click.option(
+    "--date",
+    help="Last commit before date in format: 'Mar 23 2022'"
+)
+@repos.command()
+@click.pass_obj
+def checkout_date(freyja, dir, date):
+    log = {}
+    for repo_dir in interact_repos_list(dir):
+        git_log = subprocess.check_output(f"git -C {repo_dir} log --until='{date} -n 1'", shell=True).decode('utf-8')
+        if git_log == '':
+            log[repo_dir] = 'Fail - log'
+        else:
+            commit = git_log.splitlines()[0].split()[1]
+            try:
+                subprocess.check_output(f"git -C {repo_dir} checkout {commit}", shell=True).decode('utf-8')
+            except subprocess.CalledProcessError:
+                log[repo_dir] = 'Fail - checkout'
+    report(log)
+
+
+@click.option(
+    "--dir",
+    default='repos',
+    help="Directory to clone the repositories"
+)
+@click.option(
+    "--branch",
+    default='main',
+    help="Branch name to checkout"
+)
+@repos.command()
+@click.pass_obj
+def checkout_branch(freyja, dir, branch):
+    log = {}
+    for repo_dir in interact_repos_list(dir):
+        try:
+            subprocess.check_output(f"git -C {repo_dir} checkout {branch}", shell=True).decode('utf-8')
+        except subprocess.CalledProcessError:
+            log[repo_dir] = 'Fail - checkout'
     report(log)

@@ -23,7 +23,7 @@ class gh_issues():
             existed = len([item[1] for item in s if item[1] == 'Existed'])
             created = len([item[1] for item in s if item[1] == 'Created'])
             erro = len([item[1] for item in s if item[1] == 'Erro'])
-            click.echo('\t {}: Create {} / Existed {} / Erro'.format(r, existed, created, erro))
+            click.echo('\t {}: Create {} / Existed {} / Erro'.format(r, created, existed, erro))
 
     def list(self, repo):
         command = 'issue list -s all -R {}'.format(repo)

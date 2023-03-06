@@ -4,6 +4,7 @@ import yaml
 from .tools.list import list
 from .tools.repos import repos
 from .tools.issues import issues
+from .tools.analysis import analysis
 
 class Freyja:
     def __init__(self, repos_yml):
@@ -55,6 +56,13 @@ class Freyja:
         return[repo.split('/')[-1] for repo in self.repos_url]
 
 
+    def interact_repos(self, dir):
+        repos_dir = os.listdir(dir)
+        for repo in repos_dir:
+            repo_dir = os.path.join(dir, repo)
+            yield repo_dir
+
+
     def write_config(self):
         config = {'org': self.org, 'prefix': self.prefix, 'repos': self.repos_url}
         with open(self.repos_yml, 'w+') as f:
@@ -85,3 +93,4 @@ def cli(ctx, repos_yml, verbose):
 cli.add_command(list)
 cli.add_command(repos)
 cli.add_command(issues)
+cli.add_command(analysis)

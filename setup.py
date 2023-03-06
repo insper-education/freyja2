@@ -5,7 +5,7 @@ setup(
     version="1.0",
     packages=["freyja", "freyja.tools"],
     include_package_data=True,
-    install_requires=["click", "pyyaml", "pydriller"],
+    install_requires=["click", "pyyaml", "pydriller", "pandas", "plotly"],
     entry_points="""
         [console_scripts]
         freyja=freyja.cli:cli
